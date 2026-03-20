@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import * as XLSX from "xlsx";
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
+// Top-level imports removed to avoid static analysis issues during build
+// @ts-ignore
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -18,6 +17,14 @@ export async function POST(req: NextRequest) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
     console.log(`[excel-to-pdf] Processing file: ${file.name}, size: ${file.size} bytes`);
+
+    // Lazy-load libraries
+    // @ts-ignore
+    const XLSX = require("xlsx");
+    // @ts-ignore
+    const { jsPDF } = require("jspdf");
+    // @ts-ignore
+    const autoTable = require("jspdf-autotable");
 
     // Parse Excel workbook
     const workbook = XLSX.read(buffer, { type: "buffer" });
@@ -36,7 +43,7 @@ export async function POST(req: NextRequest) {
       format: "a4",
     });
 
-    workbook.SheetNames.forEach((sheetName, index) => {
+    workbook.SheetNames.forEach((sheetName: string, index: number) => {
       if (index > 0) {
         doc.addPage();
       }

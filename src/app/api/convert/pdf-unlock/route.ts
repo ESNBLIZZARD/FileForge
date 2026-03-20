@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import muhammara from "muhammara";
+// Top-level import removed to avoid Turbopack static analysis issues with native modules
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,6 +16,9 @@ export async function POST(req: NextRequest) {
 
         const arrayBuffer = await file.arrayBuffer();
         const inputBuffer = Buffer.from(arrayBuffer);
+        
+        // Lazy-load muhammara inside the handler to satisfy Next.js static analysis
+        const muhammara = require("muhammara");
         
         // Output buffer stream
         const outStream = new muhammara.PDFWStreamForBuffer();

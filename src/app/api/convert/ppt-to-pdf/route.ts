@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jsPDF } from "jspdf";
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pptxParser = require("pptx-parser");
+// Top-level imports removed to avoid static analysis issues during build
+// @ts-ignore
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -19,8 +18,13 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     console.log(`[ppt-to-pdf] Processing file: ${file.name}, size: ${file.size} bytes`);
 
+    // Lazy-load libraries
+    // @ts-ignore
+    const { jsPDF } = require("jspdf");
+    // @ts-ignore
+    const pptxParser = require("pptx-parser");
+
     // Parse PPTX
-    // pptx-parser usually returns an object with a 'slides' array
     let result;
     try {
         result = await pptxParser.parse(buffer);

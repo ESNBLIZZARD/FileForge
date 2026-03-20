@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import mammoth from "mammoth";
-import { jsPDF } from "jspdf";
+// Top-level imports removed to avoid static analysis issues during build
+// @ts-ignore
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -17,6 +17,12 @@ export async function POST(req: NextRequest) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
     console.log(`[word-to-pdf] Processing file: ${file.name}, size: ${file.size} bytes`);
+
+    // Lazy-load libraries
+    // @ts-ignore
+    const mammoth = require("mammoth");
+    // @ts-ignore
+    const { jsPDF } = require("jspdf");
 
     // Extract text from DOCX using mammoth
     const result = await mammoth.extractRawText({ buffer });
