@@ -19,6 +19,7 @@ import { getToolById, tools } from "@/lib/tools";
 import FileUploader from "@/components/tools/FileUploader";
 import ToolCard from "@/components/tools/ToolCard";
 import heic2any from "heic2any";
+import { convertMp3ToWav } from "@/lib/audio-utils";
 
 type ConversionState = "idle" | "uploading" | "processing" | "done" | "error";
 
@@ -70,14 +71,14 @@ export default function ToolPage({ params }: { params: Promise<{ tool: string }>
                         quality: 0.9
                     });
                     blob = Array.isArray(result) ? result[0] : result;
-                } 
+                }
                 // SVG to PNG/JPG
                 else if (tool.id === "image-svg-to-png") {
                     const canvas = document.createElement("canvas");
                     const ctx = canvas.getContext("2d");
                     const img = new Image();
                     const url = URL.createObjectURL(sourceFile);
-                    
+
                     await new Promise((resolve, reject) => {
                         img.onload = resolve;
                         img.onerror = reject;
@@ -100,7 +101,7 @@ export default function ToolPage({ params }: { params: Promise<{ tool: string }>
                     const ctx = canvas.getContext("2d");
                     const img = new Image();
                     const url = URL.createObjectURL(sourceFile);
-                    
+
                     await new Promise((resolve, reject) => {
                         img.onload = resolve;
                         img.onerror = reject;
@@ -112,15 +113,27 @@ export default function ToolPage({ params }: { params: Promise<{ tool: string }>
                     ctx?.drawImage(img, 0, 0);
                     URL.revokeObjectURL(url);
 
-                    const mimeType = outputFormat === "WEBP" ? "image/webp" : 
-                                   outputFormat === "PNG" ? "image/png" : "image/jpeg";
-                    
+                    const mimeType = outputFormat === "WEBP" ? "image/webp" :
+                        outputFormat === "PNG" ? "image/png" : "image/jpeg";
+
                     const dataUrl = canvas.toDataURL(mimeType, 0.9);
                     const res = await fetch(dataUrl);
                     blob = await res.blob();
                 }
 
-                await animateProgress(50, 95, 500);
+                const url = URL.createObjectURL(blob);
+                setDownloadUrl(url);
+                setResultFileName(`${files[0].name.split(".")[0]}.${outputFormat.toLowerCase()}`);
+            } else if (tool.category === "audio") {
+                setStageLabel("Loading FFmpeg engine...");
+                await animateProgress(0, 10, 500);
+
+                const blob = await convertMp3ToWav(sourceFile, (p) => {
+                    setStageLabel(`Converting audio... ${p}%`);
+                    setProgress(10 + Math.round(p * 0.85)); // 10% to 95%
+                });
+
+                await animateProgress(95, 100, 300);
                 const url = URL.createObjectURL(blob);
                 setDownloadUrl(url);
                 setResultFileName(`${files[0].name.split(".")[0]}.${outputFormat.toLowerCase()}`);
@@ -253,8 +266,8 @@ export default function ToolPage({ params }: { params: Promise<{ tool: string }>
                                                             setShowFormatDropdown(false);
                                                         }}
                                                         className={`w-full text-left px-4 py-2 text-sm transition-colors ${fmt === outputFormat
-                                                                ? "text-violet-400"
-                                                                : "text-[#9090b0] hover:text-white hover:bg-white/[0.06]"
+                                                            ? "text-violet-400"
+                                                            : "text-[#9090b0] hover:text-white hover:bg-white/[0.06]"
                                                             }`}
                                                     >
                                                         {fmt}
@@ -277,8 +290,8 @@ export default function ToolPage({ params }: { params: Promise<{ tool: string }>
                                     onClick={startConversion}
                                     disabled={files.length === 0}
                                     className={`w-full py-4 rounded-xl font-semibold text-white text-base transition-all ${files.length > 0
-                                            ? "bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 shadow-xl shadow-violet-900/40"
-                                            : "bg-white/[0.06] text-[#9090b0] cursor-not-allowed"
+                                        ? "bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 shadow-xl shadow-violet-900/40"
+                                        : "bg-white/[0.06] text-[#9090b0] cursor-not-allowed"
                                         }`}
                                 >
                                     {files.length === 0
