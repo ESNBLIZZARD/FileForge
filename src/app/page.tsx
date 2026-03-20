@@ -103,7 +103,7 @@ export default function Home() {
             style={{ animationDelay: "0.2s" }}
           >
             PDF, image, audio, video, and data conversions — all in one place.
-            Secure, fast, and completely free to start.
+            Secure, fast, and completely free to start.(@Jugantar)
           </p>
 
           <div
