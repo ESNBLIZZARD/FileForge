@@ -83,7 +83,7 @@ export default function DashboardPage() {
                 <div className="flex items-start justify-between gap-4 mb-10 flex-wrap">
                     <div>
                         <h1 className="text-3xl sm:text-4xl font-bold text-white">Dashboard</h1>
-                        <p className="text-[#9090b0] mt-1">Welcome back, Priyanka 👋</p>
+                        <p className="text-[#9090b0] mt-1">Welcome back, Jugantar 👋</p>
                     </div>
                     <div className="flex items-center gap-3">
                         <span className="inline-flex items-center gap-1.5 glass border border-white/[0.12] rounded-full px-3 py-1.5 text-sm text-[#9090b0]">
@@ -180,8 +180,8 @@ export default function DashboardPage() {
                             <div
                                 key={conv.id}
                                 className={`grid grid-cols-1 sm:grid-cols-5 gap-3 sm:gap-4 px-5 py-4 items-center transition-colors hover:bg-white/[0.03] ${i !== recentConversions.length - 1
-                                        ? "border-b border-white/[0.04]"
-                                        : ""
+                                    ? "border-b border-white/[0.04]"
+                                    : ""
                                     }`}
                             >
                                 {/* Filename */}
