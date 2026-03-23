@@ -5,17 +5,12 @@ import Link from "next/link";
 import {
     ArrowLeft,
     Upload,
-    File,
-    X,
     CheckCircle2,
-    AlertCircle,
     Download,
     RefreshCw,
     Shield,
-    Table,
     FileSpreadsheet,
     FileText,
-    Trash2,
     Zap,
     Columns,
 } from "lucide-react";

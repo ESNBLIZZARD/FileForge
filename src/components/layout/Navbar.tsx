@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Zap, Menu, X, ChevronDown } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
+import { Zap, Menu, X, ChevronDown, User, LogOut, Settings, LayoutDashboard } from "lucide-react";
 
 const navTools = [
     { label: "PDF Tools", href: "/tools?cat=pdf" },
@@ -13,15 +14,27 @@ const navTools = [
 ];
 
 export default function Navbar() {
+    const { data: session, status } = useSession();
     const [isScrolled, setIsScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const [toolsOpen, setToolsOpen] = useState(false);
+    const [profileOpen, setProfileOpen] = useState(false);
+
+    useEffect(() => {
+        if (status !== "loading") {
+            console.log("Navbar Auth Status:", status, "Session User:", session?.user?.name);
+        }
+    }, [status, session]);
 
     useEffect(() => {
         const onScroll = () => setIsScrolled(window.scrollY > 20);
         window.addEventListener("scroll", onScroll);
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
+
+    const userEmail = session?.user?.email;
+    const userName = session?.user?.name || "User";
+    const userImage = session?.user?.image;
 
     return (
         <header
@@ -57,7 +70,7 @@ export default function Navbar() {
                                 />
                             </button>
                             {toolsOpen && (
-                                <div className="absolute top-full left-0 mt-1 w-52 glass rounded-xl py-2 shadow-2xl shadow-black/50">
+                                <div className="absolute top-full left-0 mt-1 w-52 glass rounded-xl py-2 shadow-2xl shadow-black/50 border border-white/5">
                                     {navTools.map((t) => (
                                         <Link
                                             key={t.label}
@@ -85,28 +98,73 @@ export default function Navbar() {
                         >
                             Pricing
                         </Link>
-                        <Link
-                            href="/dashboard"
-                            className="px-4 py-2 rounded-lg text-[#9090b0] hover:text-white hover:bg-white/[0.06] transition-all text-sm font-medium"
-                        >
-                            Dashboard
-                        </Link>
+                        {status === "authenticated" && (
+                            <Link
+                                href="/dashboard"
+                                className="px-4 py-2 rounded-lg text-[#9090b0] hover:text-white hover:bg-white/[0.06] transition-all text-sm font-medium"
+                            >
+                                Dashboard
+                            </Link>
+                        )}
                     </nav>
 
                     {/* Auth Buttons */}
                     <div className="hidden md:flex items-center gap-3">
-                        <Link
-                            href="/login"
-                            className="px-4 py-2 text-sm font-medium text-[#9090b0] hover:text-white transition-colors"
-                        >
-                            Sign In
-                        </Link>
-                        <Link
-                            href="/login"
-                            className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-violet-500 rounded-lg hover:from-violet-500 hover:to-violet-400 transition-all shadow-lg shadow-violet-900/30"
-                        >
-                            Get Started Free
-                        </Link>
+                        {status === "loading" ? (
+                            <div className="w-8 h-8 rounded-full bg-white/5 animate-pulse" />
+                        ) : status === "authenticated" ? (
+                            <div className="relative" onMouseEnter={() => setProfileOpen(true)} onMouseLeave={() => setProfileOpen(false)}>
+                                <button className="flex items-center gap-2 p-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
+                                    {userImage ? (
+                                        <img 
+                                            src={userImage} 
+                                            alt={userName} 
+                                            className="w-7 h-7 rounded-full object-cover" 
+                                            crossOrigin="anonymous"
+                                            referrerPolicy="no-referrer"
+                                        />
+                                    ) : (
+                                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
+                                            <User className="w-4 h-4 text-white" />
+                                        </div>
+                                    )}
+                                    <span className="text-white text-xs font-bold pr-2">{userName.split(' ')[0]}</span>
+                                </button>
+                                
+                                {profileOpen && (
+                                    <div className="absolute top-full right-0 mt-1 w-56 glass rounded-2xl py-3 shadow-2xl border border-white/5 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                                        <div className="px-4 py-2 mb-2 border-b border-white/5">
+                                            <p className="text-white text-xs font-bold truncate">{userName}</p>
+                                            <p className="text-[#606080] text-[10px] truncate">{userEmail}</p>
+                                        </div>
+                                        <Link href="/dashboard" className="flex items-center gap-3 px-4 py-2 text-sm text-[#9090b0] hover:text-white hover:bg-white/5 transition-colors">
+                                            <LayoutDashboard className="w-4 h-4" /> Dashboard
+                                        </Link>
+                                        <Link href="/settings" className="flex items-center gap-3 px-4 py-2 text-sm text-[#9090b0] hover:text-white hover:bg-white/5 transition-colors">
+                                            <Settings className="w-4 h-4" /> Settings
+                                        </Link>
+                                        <button onClick={() => signOut()} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-white/5 transition-colors border-t border-white/5 mt-2 pt-2">
+                                            <LogOut className="w-4 h-4" /> Sign Out
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <>
+                                <Link
+                                    href="/login"
+                                    className="px-4 py-2 text-sm font-medium text-[#9090b0] hover:text-white transition-colors"
+                                >
+                                    Sign In
+                                </Link>
+                                <Link
+                                    href="/login"
+                                    className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-violet-500 rounded-lg hover:from-violet-500 hover:to-violet-400 transition-all shadow-lg shadow-violet-900/30"
+                                >
+                                    Get Started
+                                </Link>
+                            </>
+                        )}
                     </div>
 
                     {/* Mobile Menu Toggle */}
@@ -122,14 +180,38 @@ export default function Navbar() {
 
             {/* Mobile Menu */}
             {menuOpen && (
-                <div className="md:hidden bg-[#06060f]/95 backdrop-blur-xl border-t border-white/[0.06]">
+                <div className="md:hidden bg-[#06060f]/95 backdrop-blur-xl border-t border-white/[0.06] animate-in slide-in-from-top-4 duration-300">
                     <div className="px-4 py-4 space-y-1">
+                        {status === "authenticated" && (
+                            <div className="px-4 py-4 mb-4 bg-white/5 rounded-xl border border-white/5">
+                                <div className="flex items-center gap-3">
+                                    {userImage ? (
+                                        <img 
+                                            src={userImage} 
+                                            alt={userName} 
+                                            className="w-10 h-10 rounded-full border border-white/10" 
+                                            crossOrigin="anonymous"
+                                            referrerPolicy="no-referrer"
+                                        />
+                                    ) : (
+                                        <div className="w-10 h-10 rounded-full bg-violet-600 flex items-center justify-center">
+                                            <User className="w-5 h-5 text-white" />
+                                        </div>
+                                    )}
+                                    <div className="flex-1">
+                                        <p className="text-white text-sm font-bold truncate">{userName}</p>
+                                        <p className="text-[#606080] text-xs truncate">{userEmail}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {navTools.map((t) => (
                             <Link
                                 key={t.label}
                                 href={t.href}
                                 onClick={() => setMenuOpen(false)}
-                                className="block px-4 py-2.5 rounded-lg text-[#9090b0] hover:text-white hover:bg-white/[0.06] transition-all text-sm"
+                                className="block px-4 py-2.5 rounded-lg text-[#9090b0] hover:text-white hover:bg-white/[0.06] transition-all text-sm font-bold uppercase tracking-widest"
                             >
                                 {t.label}
                             </Link>
@@ -137,36 +219,48 @@ export default function Navbar() {
                         <Link
                             href="/pricing"
                             onClick={() => setMenuOpen(false)}
-                            className="block px-4 py-2.5 rounded-lg text-[#9090b0] hover:text-white hover:bg-white/[0.06] transition-all text-sm"
+                            className="block px-4 py-2.5 rounded-lg text-[#9090b0] hover:text-white hover:bg-white/[0.06] transition-all text-sm font-bold uppercase tracking-widest"
                         >
                             Pricing
                         </Link>
-                        <Link
-                            href="/dashboard"
-                            onClick={() => setMenuOpen(false)}
-                            className="block px-4 py-2.5 rounded-lg text-[#9090b0] hover:text-white hover:bg-white/[0.06] transition-all text-sm"
-                        >
-                            Dashboard
-                        </Link>
-                        <div className="pt-3 flex flex-col gap-2">
-                            <Link
-                                href="/login"
-                                onClick={() => setMenuOpen(false)}
-                                className="block px-4 py-2.5 text-center text-sm font-medium text-white border border-white/[0.12] rounded-lg hover:bg-white/[0.06] transition-all"
-                            >
-                                Sign In
-                            </Link>
-                            <Link
-                                href="/login"
-                                onClick={() => setMenuOpen(false)}
-                                className="block px-4 py-2.5 text-center text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-violet-500 rounded-lg"
-                            >
-                                Get Started Free
-                            </Link>
-                        </div>
+                        {status === "authenticated" ? (
+                            <>
+                                <Link
+                                    href="/dashboard"
+                                    onClick={() => setMenuOpen(false)}
+                                    className="block px-4 py-2.5 rounded-lg text-[#9090b0] hover:text-white hover:bg-white/[0.06] transition-all text-sm font-bold uppercase tracking-widest"
+                                >
+                                    Dashboard
+                                </Link>
+                                <button
+                                    onClick={() => { signOut(); setMenuOpen(false); }}
+                                    className="w-full text-left px-4 py-2.5 rounded-lg text-red-500 hover:bg-red-500/10 transition-all text-sm font-black uppercase tracking-widest mt-4"
+                                >
+                                    Sign Out
+                                </button>
+                            </>
+                        ) : (
+                            <div className="pt-3 flex flex-col gap-2">
+                                <Link
+                                    href="/login"
+                                    onClick={() => setMenuOpen(false)}
+                                    className="block px-4 py-2.5 text-center text-sm font-black uppercase tracking-widest text-[#9090b0] border border-white/5 rounded-xl hover:bg-white/[0.06] transition-all"
+                                >
+                                    Sign In
+                                </Link>
+                                <Link
+                                    href="/login"
+                                    onClick={() => setMenuOpen(false)}
+                                    className="block px-4 py-2.5 text-center text-sm font-black uppercase tracking-widest text-white bg-gradient-to-r from-violet-600 to-violet-500 rounded-xl shadow-lg shadow-violet-900/30"
+                                >
+                                    Get Started
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
+            <style jsx>{` .glass { background: rgba(15, 15, 25, 0.6); backdrop-filter: blur(40px); } `}</style>
         </header>
     );
 }
