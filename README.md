@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Local Setup
 
-## Getting Started
+Install dependencies and start the app:
 
-First, run the development server:
+```bash
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+## Environment Variables
+
+Copy `.env.example` to `.env` and fill in these values:
+
+```bash
+DATABASE_URL=
+NEXTAUTH_SECRET=
+NEXTAUTH_URL=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GITHUB_ID=
+GITHUB_SECRET=
+```
+
+## Prisma Postgres + Vercel Deployment
+
+This app uses NextAuth with Google, GitHub, and credentials login. For production, use Prisma ORM with a hosted PostgreSQL database.
+
+1. Create a Prisma Postgres database in the Prisma Data Platform.
+2. Copy the connection string into `DATABASE_URL`.
+3. Run a local migration:
+
+```bash
+npx prisma migrate dev --name init-postgres
+```
+
+4. Regenerate the Prisma client if needed:
+
+```bash
+npx prisma generate
+```
+
+5. Test locally with:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+6. Import the repo into Vercel.
+7. Add the same environment variables in the Vercel project settings.
+8. Set `NEXTAUTH_URL` to your deployed site URL, for example:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+NEXTAUTH_URL=https://your-app.vercel.app
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+9. Update OAuth providers with these production callbacks:
 
-## Learn More
+```text
+Google: https://your-app.vercel.app/api/auth/callback/google
+GitHub: https://your-app.vercel.app/api/auth/callback/github
+```
 
-To learn more about Next.js, take a look at the following resources:
+10. Redeploy the app after saving env vars and provider callback URLs.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- The old local SQLite database is not suitable for production hosting on Vercel.
+- GitHub OAuth usually needs the final production callback URL, so test sign-in on the production domain after deploy.

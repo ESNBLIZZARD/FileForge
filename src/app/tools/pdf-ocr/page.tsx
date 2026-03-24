@@ -18,6 +18,7 @@ import {
     Download
 } from "lucide-react";
 import { tools } from "@/lib/tools";
+import { trackConversion } from "@/lib/utils/track";
 import ToolCard from "@/components/tools/ToolCard";
 
 export default function OcrPdfPage() {
@@ -61,6 +62,11 @@ export default function OcrPdfPage() {
 
             const data = await response.json();
             setExtractedText(data.text);
+
+            // Log to history
+            if (file) {
+                await trackConversion(file.name, "TEXT", "pdf-ocr");
+            }
         } catch (err: any) {
             setError(err.message || "An error occurred while performing OCR.");
         } finally {

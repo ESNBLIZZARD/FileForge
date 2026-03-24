@@ -23,6 +23,7 @@ import {
 import { tools } from "@/lib/tools";
 import ToolCard from "@/components/tools/ToolCard";
 import imageCompression from "browser-image-compression";
+import { trackConversion } from "@/lib/utils/track";
 
 export default function ImageCompressPage() {
     const [file, setFile] = useState<File | null>(null);
@@ -68,6 +69,9 @@ export default function ImageCompressPage() {
                 original: file.size,
                 compressed: compressedFile.size
             });
+
+            // Log to history
+            await trackConversion(file.name, "Image", "image-compress");
 
         } catch (err: any) {
             console.error("Compression error:", err);

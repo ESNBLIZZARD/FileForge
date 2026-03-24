@@ -23,6 +23,7 @@ import {
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import ToolCard from "@/components/tools/ToolCard";
+import { trackConversion } from "@/lib/utils/track";
 import { tools } from "@/lib/tools";
 
 type ConversionState = "loading-ffmpeg" | "idle" | "processing" | "done" | "error";
@@ -131,6 +132,9 @@ export default function CompressVideoPage() {
             setDownloadUrl(url);
             setProgress(100);
             setConvState("done");
+
+            // Log to history
+            await trackConversion(file.name, "Video", "compress-video");
 
             await ffmpeg.deleteFile(inputName);
             await ffmpeg.deleteFile(outputName);

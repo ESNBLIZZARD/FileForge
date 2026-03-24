@@ -22,6 +22,7 @@ import {
     MoveRight
 } from "lucide-react";
 import { tools } from "@/lib/tools";
+import { trackConversion } from "@/lib/utils/track";
 import ToolCard from "@/components/tools/ToolCard";
 
 export default function ImageResizePage() {
@@ -119,6 +120,11 @@ export default function ImageResizePage() {
             const format = file.type === "image/png" ? "image/png" : "image/jpeg";
             const dataUrl = canvas.toDataURL(format, 0.92);
             setDownloadUrl(dataUrl);
+
+            // Log to history
+            if (file) {
+                await trackConversion(file.name, "IMAGE", "image-resize");
+            }
 
         } catch (err: any) {
             console.error("Resize error:", err);

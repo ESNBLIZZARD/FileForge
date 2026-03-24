@@ -21,6 +21,7 @@ import {
     AlertCircle
 } from "lucide-react";
 import { tools } from "@/lib/tools";
+import { trackConversion } from "@/lib/utils/track";
 import ToolCard from "@/components/tools/ToolCard";
 import { PDFDocument, degrees } from "pdf-lib";
 import * as pdfjs from "pdfjs-dist";
@@ -152,6 +153,10 @@ export default function RearrangePdfPage() {
             const blob = new Blob([pdfBytes as any], { type: "application/pdf" });
             const url = URL.createObjectURL(blob);
             setDownloadUrl(url);
+            setIsProcessing(false);
+
+            // Log to history
+            await trackConversion("rearranged_document.pdf", "PDF", "pdf-rearrange");
             
             // Auto-download
             const link = document.createElement("a");

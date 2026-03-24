@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -37,6 +37,11 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   id             String    @id @default(cuid())
   name           String?
@@ -44,8 +49,22 @@ model User {
   emailVerified  DateTime?
   image          String?
   hashedPassword String?
+  role           Role      @default(USER)
   accounts       Account[]
   sessions       Session[]
+  conversions    Conversion[]
+}
+
+model Conversion {
+  id           String   @id @default(cuid())
+  userId       String
+  fileName     String
+  fileType     String
+  toolUsed     String
+  status       String   @default("completed")
+  createdAt    DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {

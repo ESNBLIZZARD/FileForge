@@ -17,6 +17,7 @@ import {
     Zap,
 } from "lucide-react";
 import ToolCard from "@/components/tools/ToolCard";
+import { trackConversion } from "@/lib/utils/track";
 import { tools } from "@/lib/tools";
 
 type ConversionState = "idle" | "processing" | "done" | "error";
@@ -80,6 +81,9 @@ export default function PdfProtectPage() {
             setDownloadUrl(url);
             setProgress(100);
             setConvState("done");
+
+            // Log to history
+            await trackConversion(file.name, "PDF", "pdf-protect");
         } catch (err: unknown) {
             console.error("Protection failed:", err);
             const message = err instanceof Error ? err.message : "An unexpected error occurred.";

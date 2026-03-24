@@ -16,6 +16,7 @@ import {
     Trash2,
 } from "lucide-react";
 import { getToolById, tools } from "@/lib/tools";
+import { trackConversion } from "@/lib/utils/track";
 import FileUploader from "@/components/tools/FileUploader";
 import ToolCard from "@/components/tools/ToolCard";
 import heic2any from "heic2any";
@@ -149,6 +150,9 @@ export default function ToolPage({ params }: { params: Promise<{ tool: string }>
             setProgress(100);
             setStageLabel("Conversion Complete!");
             setConvState("done");
+
+            // Log to history
+            await trackConversion(files[0].name, outputFormat, tool.id);
         } catch (err) {
             console.error(err);
             setConvState("error");

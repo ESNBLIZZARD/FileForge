@@ -1,229 +1,220 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import {
-    FileText,
-    TrendingUp,
-    CheckCircle2,
-    Crown,
-    Download,
-    ArrowRight,
-    Calendar,
+"use client";
+
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { 
+  FileText, 
+  Clock, 
+  CheckCircle2, 
+  ArrowUpRight, 
+  LayoutDashboard,
+  History,
+  TrendingUp,
+  Search,
+  ChevronRight
 } from "lucide-react";
 
-export const metadata: Metadata = {
-    title: "Dashboard — FileForge",
-    description: "View your conversion history, usage stats, and manage your FileForge account.",
-};
-
-const recentConversions = [
-    {
-        id: 1,
-        filename: "report_Q4_2025.pdf",
-        from: "PDF",
-        to: "DOCX",
-        status: "completed",
-        size: "2.4 MB",
-        date: "Today, 2:15 PM",
-        tool: "pdf-to-word",
-    },
-    {
-        id: 2,
-        filename: "product_photos.zip",
-        from: "PNG",
-        to: "WEBP",
-        status: "completed",
-        size: "18.6 MB",
-        date: "Today, 11:03 AM",
-        tool: "png-to-webp",
-    },
-    {
-        id: 3,
-        filename: "data_export.csv",
-        from: "CSV",
-        to: "XLSX",
-        status: "completed",
-        size: "512 KB",
-        date: "Yesterday, 4:44 PM",
-        tool: "csv-to-xlsx",
-    },
-    {
-        id: 4,
-        filename: "presentation_draft.pptx",
-        from: "PPTX",
-        to: "PDF",
-        status: "completed",
-        size: "8.1 MB",
-        date: "Yesterday, 9:20 AM",
-        tool: "ppt-to-pdf",
-    },
-    {
-        id: 5,
-        filename: "podcast_ep12.wav",
-        from: "WAV",
-        to: "MP3",
-        status: "completed",
-        size: "94 MB",
-        date: "Feb 22, 2026",
-        tool: "wav-to-mp3",
-    },
-];
-
-const stats = [
-    { label: "Total Conversions", value: "147", icon: TrendingUp, color: "text-violet-400" },
-    { label: "Files Processed", value: "23.4 GB", icon: FileText, color: "text-cyan-400" },
-    { label: "This Month", value: "38", icon: Calendar, color: "text-pink-400" },
-    { label: "Saved Today", value: "4", icon: CheckCircle2, color: "text-green-400" },
-];
+interface Conversion {
+  id: string;
+  fileName: string;
+  fileType: string;
+  toolUsed: string;
+  createdAt: string;
+  status: string;
+}
 
 export default function DashboardPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [conversions, setConversions] = useState<Conversion[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const res = await fetch("/api/conversions");
+        if (res.ok) {
+          const data = await res.json();
+          setConversions(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch history:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (status === "authenticated") {
+      fetchHistory();
+    }
+  }, [status]);
+
+  if (status === "loading" || isLoading) {
     return (
-        <div className="min-h-screen pt-24 pb-24 px-4">
-            <div className="max-w-6xl mx-auto">
-                {/* Header */}
-                <div className="flex items-start justify-between gap-4 mb-10 flex-wrap">
-                    <div>
-                        <h1 className="text-3xl sm:text-4xl font-bold text-white">Dashboard</h1>
-                        <p className="text-[#9090b0] mt-1">Welcome back, Jugantar 👋</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <span className="inline-flex items-center gap-1.5 glass border border-white/[0.12] rounded-full px-3 py-1.5 text-sm text-[#9090b0]">
-                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                            Free Plan
-                        </span>
-                        <Link
-                            href="/pricing"
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-black text-sm font-bold rounded-xl hover:from-amber-400 hover:to-orange-400 transition-all"
-                        >
-                            <Crown className="w-4 h-4" />
-                            Upgrade
-                        </Link>
-                    </div>
-                </div>
-
-                {/* Stats */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-                    {stats.map((s) => {
-                        const Icon = s.icon;
-                        return (
-                            <div key={s.label} className="glass rounded-2xl p-5">
-                                <div className="flex items-center justify-between mb-3">
-                                    <p className="text-[#9090b0] text-xs font-medium">{s.label}</p>
-                                    <Icon className={`w-4 h-4 ${s.color}`} />
-                                </div>
-                                <p className="text-white text-2xl font-bold">{s.value}</p>
-                            </div>
-                        );
-                    })}
-                </div>
-
-                {/* Usage Bar */}
-                <div className="glass rounded-2xl p-6 mb-10">
-                    <div className="flex items-center justify-between mb-3">
-                        <div>
-                            <p className="text-white font-semibold">Daily Limit</p>
-                            <p className="text-[#9090b0] text-sm">4 of 5 conversions used today</p>
-                        </div>
-                        <Link
-                            href="/pricing"
-                            className="text-violet-400 hover:text-violet-300 text-sm font-medium transition-colors flex items-center gap-1"
-                        >
-                            Upgrade for unlimited <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
-                    </div>
-                    <div className="w-full bg-white/[0.06] rounded-full h-2.5">
-                        <div
-                            className="h-2.5 rounded-full bg-gradient-to-r from-violet-600 to-cyan-500"
-                            style={{ width: "80%" }}
-                        />
-                    </div>
-                    <p className="text-[#9090b0] text-xs mt-2">Resets at midnight · 1 conversion remaining</p>
-                </div>
-
-                {/* Quick Actions */}
-                <div className="mb-10">
-                    <h2 className="text-xl font-bold text-white mb-4">Quick Convert</h2>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        {[
-                            { label: "PDF → Word", href: "/tools/pdf-to-word", emoji: "📄" },
-                            { label: "Compress PDF", href: "/tools/compress-pdf", emoji: "🗜️" },
-                            { label: "JPG → PNG", href: "/tools/jpg-to-png", emoji: "🖼️" },
-                            { label: "CSV → Excel", href: "/tools/csv-to-xlsx", emoji: "📊" },
-                        ].map((action) => (
-                            <Link
-                                key={action.label}
-                                href={action.href}
-                                className="glass rounded-xl p-4 flex flex-col items-center gap-2 text-center glass-hover"
-                            >
-                                <span className="text-2xl">{action.emoji}</span>
-                                <span className="text-white text-xs font-medium">{action.label}</span>
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Conversion History */}
-                <div>
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-xl font-bold text-white">Recent Conversions</h2>
-                        <span className="text-[#9090b0] text-sm">Last 7 days</span>
-                    </div>
-
-                    <div className="glass rounded-2xl overflow-hidden">
-                        <div className="hidden sm:grid grid-cols-5 gap-4 px-5 py-3 border-b border-white/[0.06] text-xs text-[#9090b0] font-medium uppercase tracking-wide">
-                            <span className="col-span-2">File</span>
-                            <span>Conversion</span>
-                            <span>Size</span>
-                            <span>Date</span>
-                        </div>
-
-                        {recentConversions.map((conv, i) => (
-                            <div
-                                key={conv.id}
-                                className={`grid grid-cols-1 sm:grid-cols-5 gap-3 sm:gap-4 px-5 py-4 items-center transition-colors hover:bg-white/[0.03] ${i !== recentConversions.length - 1
-                                    ? "border-b border-white/[0.04]"
-                                    : ""
-                                    }`}
-                            >
-                                {/* Filename */}
-                                <div className="col-span-2 flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-violet-600/20 flex items-center justify-center flex-shrink-0">
-                                        <FileText className="w-4 h-4 text-violet-400" />
-                                    </div>
-                                    <div className="min-w-0">
-                                        <p className="text-white text-sm font-medium truncate">{conv.filename}</p>
-                                        <p className="text-[#9090b0] text-xs sm:hidden">
-                                            {conv.from} → {conv.to} &nbsp;·&nbsp; {conv.size} &nbsp;·&nbsp; {conv.date}
-                                        </p>
-                                    </div>
-                                </div>
-                                {/* Conversion */}
-                                <div className="hidden sm:flex items-center gap-2">
-                                    <span className="text-xs text-[#9090b0] bg-white/[0.06] px-2 py-0.5 rounded">
-                                        {conv.from}
-                                    </span>
-                                    <ArrowRight className="w-3 h-3 text-[#9090b0]" />
-                                    <span className="text-xs text-violet-300 bg-violet-600/20 px-2 py-0.5 rounded">
-                                        {conv.to}
-                                    </span>
-                                </div>
-                                {/* Size */}
-                                <span className="hidden sm:block text-[#9090b0] text-sm">{conv.size}</span>
-                                {/* Date */}
-                                <div className="hidden sm:flex items-center justify-between gap-2">
-                                    <span className="text-[#9090b0] text-xs">{conv.date}</span>
-                                    <Link
-                                        href={`/tools/${conv.tool}`}
-                                        className="p-1.5 rounded-lg text-[#9090b0] hover:text-white hover:bg-white/[0.08] transition-all"
-                                        title="Reuse this tool"
-                                    >
-                                        <Download className="w-3.5 h-3.5" />
-                                    </Link>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </div>
+      <div className="min-h-screen bg-[#06060f] pt-32 flex items-center justify-center">
+        <div className="w-12 h-12 rounded-full border-2 border-violet-500 border-t-transparent animate-spin" />
+      </div>
     );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#06060f] pt-32 pb-20 px-4 md:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
+          <div>
+            <h1 className="text-4xl font-black text-white tracking-tight mb-2">
+              Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-indigo-400">{session?.user?.name || "User"}</span>!
+            </h1>
+            <p className="text-[#9090b0] text-lg font-medium">Manage your conversions and account activity.</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 backdrop-blur-xl">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-violet-400" />
+                </div>
+                <div>
+                  <p className="text-[#606080] text-xs font-bold uppercase tracking-wider">Total Files</p>
+                  <p className="text-white font-black text-xl leading-none">{conversions.length}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          {[
+            { 
+              label: "Active Tools", 
+              value: `${new Set(conversions.map(c => c.toolUsed)).size}`, 
+              icon: LayoutDashboard, 
+              color: "from-blue-500 to-cyan-400" 
+            },
+            { 
+              label: "Hours Saved", 
+              value: `${(conversions.length * 0.15).toFixed(1)}h`, 
+              icon: Clock, 
+              color: "from-violet-600 to-indigo-500" 
+            },
+            { 
+              label: "Success Rate", 
+              value: conversions.length > 0 ? "100%" : "0%", 
+              icon: CheckCircle2, 
+              color: "from-emerald-500 to-teal-400" 
+            },
+          ].map((stat, i) => (
+            <div key={i} className="group relative overflow-hidden bg-white/5 border border-white/10 p-8 rounded-3xl hover:bg-white/[0.08] transition-all duration-500">
+              <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.color} opacity-5 blur-3xl group-hover:opacity-10 transition-opacity`} />
+              <div className="flex items-start justify-between relative z-10">
+                <div>
+                  <p className="text-[#8080a0] font-bold text-sm uppercase tracking-widest mb-1">{stat.label}</p>
+                  <p className="text-3xl font-black text-white">{stat.value}</p>
+                </div>
+                <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
+                  <stat.icon className="w-6 h-6 text-white" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Main Content Area */}
+        <div className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden backdrop-blur-3xl shadow-2xl shadow-black/50">
+          <div className="p-8 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
+                <History className="w-6 h-6 text-violet-400" />
+              </div>
+              <h2 className="text-2xl font-black text-white tracking-tight">Recent Activity</h2>
+            </div>
+            
+            <div className="hidden md:flex relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#606080] group-focus-within:text-violet-400 transition-colors" />
+                <input 
+                  type="text" 
+                  placeholder="Search file history..." 
+                  className="bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-2.5 text-sm md:w-64 focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all"
+                />
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-black/20">
+                  <th className="p-6 text-[#606080] font-bold text-xs uppercase tracking-[0.2em] first:pl-10">File Name</th>
+                  <th className="p-6 text-[#606080] font-bold text-xs uppercase tracking-[0.2em]">Tool</th>
+                  <th className="p-6 text-[#606080] font-bold text-xs uppercase tracking-[0.2em]">Date</th>
+                  <th className="p-6 text-[#606080] font-bold text-xs uppercase tracking-[0.2em]">Status</th>
+                  <th className="p-6 text-[#606080] font-bold text-xs uppercase tracking-[0.2em] last:pr-10 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {conversions.length > 0 ? (
+                  conversions.map((item) => (
+                    <tr key={item.id} className="group hover:bg-white/[0.04] transition-colors border-b border-white/[0.03] last:border-0">
+                      <td className="p-6 first:pl-10">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <FileText className="w-5 h-5 text-indigo-400" />
+                          </div>
+                          <span className="text-white font-bold text-sm truncate max-w-[200px]">{item.fileName}</span>
+                        </div>
+                      </td>
+                      <td className="p-6">
+                        <span className="px-3 py-1 rounded-full bg-violet-500/20 text-violet-400 text-[10px] font-black uppercase tracking-widest border border-violet-400/20">
+                          {item.toolUsed.replace('pdf-', '').replace('-', ' ')}
+                        </span>
+                      </td>
+                      <td className="p-6 text-[#8080a0] text-sm tabular-nums">
+                        {new Date(item.createdAt).toLocaleDateString(undefined, { 
+                          month: 'short', day: 'numeric', year: 'numeric' 
+                        })}
+                      </td>
+                      <td className="p-6">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
+                          <span className="text-emerald-400 text-xs font-bold">Success</span>
+                        </div>
+                      </td>
+                      <td className="p-6 last:pr-10 text-right">
+                        <button className="p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-violet-500 hover:border-violet-400 transition-all">
+                          <ArrowUpRight className="w-4 h-4 text-white" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="py-32 text-center">
+                      <div className="flex flex-col items-center gap-6 opacity-40">
+                        <History className="w-16 h-16 text-white" />
+                        <div>
+                          <p className="text-white font-bold text-xl uppercase tracking-widest mb-1">No Activity Yet</p>
+                          <p className="text-[#9090b0] text-sm">Processed files will appear here.</p>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          
+          <div className="p-8 text-center bg-white/[0.01]">
+             <p className="text-[#505070] text-xs font-medium uppercase tracking-[0.2em]">Showing last 50 transactions</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

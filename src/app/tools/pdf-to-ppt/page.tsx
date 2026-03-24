@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import ToolCard from "@/components/tools/ToolCard";
 import { tools } from "@/lib/tools";
+import { trackConversion } from "@/lib/utils/track";
 import * as pdfjs from "pdfjs-dist";
 import pptxgen from "pptxgenjs";
 
@@ -100,6 +101,9 @@ export default function PdfToPptPage() {
             setDownloadUrl(url);
             setProgress(100);
             setConvState("done");
+
+            // Log to history
+            await trackConversion(file.name, "PDF", "pdf-to-ppt");
         } catch (err: unknown) {
             console.error("Conversion failed:", err);
             setErrorMsg("An unexpected error occurred during conversion.");

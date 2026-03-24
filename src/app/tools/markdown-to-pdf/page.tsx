@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import ToolCard from "@/components/tools/ToolCard";
 import { tools } from "@/lib/tools";
+import { trackConversion } from "@/lib/utils/track";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { marked } from "marked";
@@ -143,6 +144,9 @@ export default function MarkdownToPdfPage() {
                     setOutputFilename(filename);
                     setProgress(100);
                     setConvState("done");
+
+                    // Log to history
+                    await trackConversion(file.name, "PDF", "markdown-to-pdf");
                 } catch (renderErr) {
                     console.error("Rendering failed:", renderErr);
                     throw new Error("Failed to render Markdown to PDF.");

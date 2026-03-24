@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import ToolCard from "@/components/tools/ToolCard";
 import { tools } from "@/lib/tools";
+import { trackConversion } from "@/lib/utils/track";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
@@ -122,6 +123,9 @@ export default function HtmlToPdfPage() {
                     setOutputFilename(filename);
                     setProgress(100);
                     setConvState("done");
+
+                    // Log to history
+                    await trackConversion(file.name, "PDF", "html-to-pdf");
                 } catch (renderErr) {
                     console.error("Rendering failed:", renderErr);
                     throw new Error("Failed to render HTML to PDF.");

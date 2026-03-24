@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import ToolCard from "@/components/tools/ToolCard";
+import { trackConversion } from "@/lib/utils/track";
 import { tools } from "@/lib/tools";
 
 type ConversionState = "idle" | "processing" | "done" | "error";
@@ -85,6 +86,9 @@ export default function CsvToExcelPage() {
             setOutputFilename(file.name.replace(/\.[^/.]+$/, "") + ".xlsx");
             setDownloadUrl(url);
             setConvState("done");
+
+            // Log to history
+            await trackConversion(file.name, "Excel", "csv-to-excel");
         } catch (err) {
             setErrorMsg("Conversion failed: Error generating Excel workbook.");
             setConvState("error");

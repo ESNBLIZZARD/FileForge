@@ -22,6 +22,7 @@ import {
     RectangleVertical
 } from "lucide-react";
 import { tools } from "@/lib/tools";
+import { trackConversion } from "@/lib/utils/track";
 import ToolCard from "@/components/tools/ToolCard";
 import Cropper from "react-easy-crop";
 
@@ -103,6 +104,11 @@ export default function ImageCropPage() {
 
             const dataUrl = canvas.toDataURL(file?.type || "image/jpeg", 0.95);
             setDownloadUrl(dataUrl);
+
+            // Log to history
+            if (file) {
+                await trackConversion(file.name, "IMAGE", "image-crop");
+            }
 
         } catch (err) {
             console.error("Crop error:", err);

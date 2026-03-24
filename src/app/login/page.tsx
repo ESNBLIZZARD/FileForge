@@ -8,7 +8,7 @@ import { Zap, Eye, EyeOff, Github, Loader2 } from "lucide-react";
 import { signupSchema, loginSchema } from "@/lib/validations/auth";
 
 export default function LoginPage() {
-    const router = useRouter();
+    const router = useRouter();     
     const [isLogin, setIsLogin] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);

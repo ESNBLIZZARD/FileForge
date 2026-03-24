@@ -22,6 +22,7 @@ import {
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import ToolCard from "@/components/tools/ToolCard";
+import { trackConversion } from "@/lib/utils/track";
 import { tools } from "@/lib/tools";
 
 // Wait, I used lucide-center in the copy-paste, fixing to lucide-react
@@ -119,6 +120,9 @@ export default function MovToMp4Page() {
             setDownloadUrl(url);
             setProgress(100);
             setConvState("done");
+
+            // Log to history
+            await trackConversion(file.name, "Video", "mov-to-mp4");
 
             await ffmpeg.deleteFile(inputName);
             await ffmpeg.deleteFile(outputName);

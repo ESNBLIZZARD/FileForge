@@ -21,6 +21,7 @@ import {
 import * as XLSX from "xlsx";
 import ToolCard from "@/components/tools/ToolCard";
 import { tools } from "@/lib/tools";
+import { trackConversion } from "@/lib/utils/track";
 
 type ConversionState = "idle" | "processing" | "done" | "error";
 
@@ -86,6 +87,9 @@ export default function ExcelToCsvPage() {
             setOutputFilename(file.name.replace(/\.[^/.]+$/, "") + ".csv");
             setDownloadUrl(url);
             setConvState("done");
+            
+            // Log to history
+            await trackConversion(file.name, "Data", "excel-to-csv");
         } catch (err) {
             setErrorMsg("Conversion failed: Error parsing sheet data.");
             setConvState("error");

@@ -19,6 +19,7 @@ import {
     Trash2,
 } from "lucide-react";
 import ToolCard from "@/components/tools/ToolCard";
+import { trackConversion } from "@/lib/utils/track";
 import { tools } from "@/lib/tools";
 
 type ConversionState = "idle" | "uploading" | "processing" | "done" | "error";
@@ -107,6 +108,9 @@ export default function PptToPdfPage() {
             setDownloadUrl(url);
             setProgress(100);
             setConvState("done");
+
+            // Log to history
+            await trackConversion(file.name, "PDF", "ppt-to-pdf");
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : "An unexpected error occurred.";
             setErrorMsg(message);

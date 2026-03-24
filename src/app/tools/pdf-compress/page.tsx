@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import ToolCard from "@/components/tools/ToolCard";
 import { tools } from "@/lib/tools";
+import { trackConversion } from "@/lib/utils/track";
 import { PDFDocument } from "pdf-lib";
 
 type ConversionState = "idle" | "processing" | "done" | "error";
@@ -83,6 +84,9 @@ export default function PdfCompressPage() {
             setDownloadUrl(url);
             setProgress(100);
             setConvState("done");
+
+            // Log to history
+            await trackConversion(file.name, "PDF", "pdf-compress");
         } catch (err) {
             console.error("Compression failed:", err);
             setErrorMsg("An unexpected error occurred during compression.");

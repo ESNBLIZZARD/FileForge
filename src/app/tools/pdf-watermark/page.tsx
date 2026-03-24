@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import ToolCard from "@/components/tools/ToolCard";
 import { tools } from "@/lib/tools";
+import { trackConversion } from "@/lib/utils/track";
 import { PDFDocument, rgb, degrees, StandardFonts } from "pdf-lib";
 
 type ConversionState = "idle" | "processing" | "done" | "error";
@@ -93,6 +94,9 @@ export default function PdfWatermarkPage() {
             setDownloadUrl(url);
             setProgress(100);
             setConvState("done");
+
+            // Log to history
+            await trackConversion(file.name, "PDF", "pdf-watermark");
         } catch (err) {
             console.error("Watermark failed:", err);
             setErrorMsg("An unexpected error occurred while adding the watermark.");

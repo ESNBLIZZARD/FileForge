@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import ToolCard from "@/components/tools/ToolCard";
 import { tools } from "@/lib/tools";
+import { trackConversion } from "@/lib/utils/track";
 import { PDFDocument } from "pdf-lib";
 
 type ConversionState = "idle" | "processing" | "done" | "error";
@@ -101,6 +102,9 @@ export default function PdfMergePage() {
             setDownloadUrl(url);
             setProgress(100);
             setConvState("done");
+
+            // Log to history
+            await trackConversion("merged_document.pdf", "PDF", "pdf-merge");
         } catch (err: unknown) {
             console.error("Merge failed:", err);
             const message = err instanceof Error ? err.message : "An unexpected error occurred during merging.";

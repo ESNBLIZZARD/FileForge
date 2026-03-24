@@ -18,6 +18,7 @@ import {
     Zap,
 } from "lucide-react";
 import { getToolById, tools } from "@/lib/tools";
+import { trackConversion } from "@/lib/utils/track";
 import FileUploader from "@/components/tools/FileUploader";
 import ToolCard from "@/components/tools/ToolCard";
 import JSZip from "jszip";
@@ -106,6 +107,9 @@ export default function PdfToImagePage() {
             setProgress(100);
             setStageLabel("All pages converted!");
             setConvState("done");
+
+            // Log to history
+            await trackConversion(file.name, outputFormat, "pdf-to-image");
         } catch (err: any) {
             console.error("Conversion failed:", err);
             setErrorMsg(err.message || "An error occurred during conversion.");

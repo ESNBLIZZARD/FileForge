@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { tools } from "@/lib/tools";
 import ToolCard from "@/components/tools/ToolCard";
+import { trackConversion } from "@/lib/utils/track";
 
 export default function UnlockPdfPage() {
     const [file, setFile] = useState<File | null>(null);
@@ -65,6 +66,9 @@ export default function UnlockPdfPage() {
             const url = URL.createObjectURL(blob);
             setDownloadUrl(url);
             setIsDone(true);
+            
+            // Log to history
+            await trackConversion(file.name, "PDF", "pdf-unlock");
         } catch (err: any) {
             setError(err.message || "An error occurred while unlocking the PDF.");
         } finally {

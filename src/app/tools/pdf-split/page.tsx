@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import ToolCard from "@/components/tools/ToolCard";
 import { tools } from "@/lib/tools";
+import { trackConversion } from "@/lib/utils/track";
 import { PDFDocument } from "pdf-lib";
 
 type ConversionState = "idle" | "processing" | "done" | "error";
@@ -124,6 +125,9 @@ export default function PdfSplitPage() {
             setDownloadUrl(url);
             setProgress(100);
             setConvState("done");
+
+            // Log to history
+            await trackConversion(file.name, "PDF", "pdf-split");
         } catch (err: unknown) {
             console.error("Split failed:", err);
             setErrorMsg("An unexpected error occurred during splitting.");
