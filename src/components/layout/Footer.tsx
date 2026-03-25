@@ -48,8 +48,7 @@ export default function Footer() {
                             </span>
                         </Link>
                         <p className="text-sm text-[#9090b0] leading-relaxed mb-6 max-w-xs">
-                            40+ free online tools to convert, compress, and edit your files.
-                            Fast, secure, and private.
+                            FileForge is your ultimate free online file converter. Convert, compress, and edit PDF, image, video, and audio files instantly in your browser. Fast, secure, and private.
                         </p>
                         <div className="flex items-center gap-3">
                             <a
@@ -80,18 +79,21 @@ export default function Footer() {
                     {Object.entries(footerLinks).map(([title, links]) => (
                         <div key={title}>
                             <h3 className="text-white font-semibold text-sm mb-4">{title}</h3>
-                            <ul className="space-y-2.5">
-                                {links.map((link) => (
-                                    <li key={link.label}>
-                                        <Link
-                                            href={link.href}
-                                            className="text-sm text-[#9090b0] hover:text-white transition-colors"
-                                        >
-                                            {link.label}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
+                            <nav aria-label={`${title} Navigation`}>
+                                <ul className="space-y-2.5">
+                                    {links.map((link) => (
+                                        <li key={link.label}>
+                                            <Link
+                                                href={link.href}
+                                                title={`Free Online ${link.label} Tool`}
+                                                className="text-sm text-[#9090b0] hover:text-white transition-colors"
+                                            >
+                                                {link.label}
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </nav>
                         </div>
                     ))}
                 </div>
@@ -99,7 +101,7 @@ export default function Footer() {
                 {/* Bottom bar */}
                 <div className="mt-16 pt-8 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4">
                     <p className="text-xs text-[#9090b0]">
-                        © {new Date().getFullYear()} FileForge. All rights reserved.
+                        © {new Date().getFullYear()} FileForge Online File Converter. All rights reserved.
                     </p>
                     <p className="text-xs text-[#9090b0] flex items-center gap-1">
                         Made with <Heart className="w-3 h-3 text-rose-500 fill-rose-500" /> for creators worldwide

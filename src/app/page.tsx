@@ -10,6 +10,23 @@ import {
 } from "lucide-react";
 import { tools, categories } from "@/lib/tools";
 import ToolCard from "@/components/tools/ToolCard";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "FileForge | Free Online File Converter - PDF, Image, Video, Audio",
+  description: "Convert any file format online for free with FileForge. Securely convert PDF, images, audio, video, and more in seconds. No registration required.",
+  keywords: "free online file converter, file conversion, pdf converter, image converter, video conversion, convert files online, secure file converter, fast file conversion",
+  openGraph: {
+    title: "FileForge - Fast & Secure File Conversion",
+    description: "Convert any file instantly. PDF, image, audio, video, and data conversions — all in one place. Runs entirely in your browser.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FileForge - Online File Converter",
+    description: "Convert any file securely and instantly.",
+  }
+};
 
 const stats = [
   { label: "Files Converted", value: "2.4M+" },
@@ -69,8 +86,26 @@ const testimonials = [
 export default function Home() {
   const featuredTools = tools.slice(0, 12);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "FileForge",
+    "description": "Free and secure online file conversion tool supporting PDF, images, video, audio, and data formats.",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "All",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  };
+
   return (
     <div className="overflow-x-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center grid-pattern pt-16">
         {/* Glow Orbs */}
@@ -94,16 +129,15 @@ export default function Home() {
             className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-[1.08] tracking-tight mb-6 fade-in-up"
             style={{ animationDelay: "0.1s" }}
           >
-            Convert Any File,{" "}
-            <span className="gradient-text">Instantly</span>
+            Free Online <span className="gradient-text">File Converter</span>
           </h1>
 
           <p
             className="text-lg sm:text-xl text-[#9090b0] max-w-2xl mx-auto mb-10 leading-relaxed fade-in-up"
             style={{ animationDelay: "0.2s" }}
           >
-            PDF, image, audio, video, and data conversions — all in one place.
-            Secure, fast, and completely free to start.(@Jugantar)
+            Convert any file instantly. PDF, image, audio, video, and data conversions — all in one place.
+            Secure, fast, and completely free to start.
           </p>
 
           <div
@@ -167,10 +201,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-              Popular Tools
+              Most Popular File Conversion Tools
             </h2>
             <p className="text-[#9090b0] text-lg max-w-xl mx-auto">
-              The most-used converters — start with one click.
+              Our most-used converters — start converting with one click.
             </p>
           </div>
 
@@ -197,10 +231,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-              Why FileForge?
+              Why Choose FileForge for File Conversion?
             </h2>
             <p className="text-[#9090b0] text-lg max-w-xl mx-auto">
-              Built with privacy and performance at its core.
+              Built with privacy and performance at its core for seamless online conversion.
             </p>
           </div>
 
@@ -233,7 +267,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-              Convert in 3 steps
+              How to Convert Files Online in 3 Steps
             </h2>
           </div>
           <div className="grid sm:grid-cols-3 gap-8 relative">

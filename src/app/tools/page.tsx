@@ -26,16 +26,38 @@ export default function ToolsPage() {
         });
     }, [activeCategory, searchQuery]);
 
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "Free File Conversion Tools",
+        "description": "A comprehensive directory of free online file conversion tools provided by FileForge.",
+        "itemListElement": tools.map((t, index) => ({
+            "@type": "ListItem",
+            "position": index + 1,
+            "item": {
+                "@type": "SoftwareApplication",
+                "name": t.name,
+                "description": t.description,
+                "applicationCategory": "UtilityApplication",
+                "url": `https://fileforge.com/tools/${t.id}`
+            }
+        }))
+    };
+
     return (
         <div className="min-h-screen pt-24 pb-24 px-4">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
                     <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-                        All <span className="gradient-text">Conversion Tools</span>
+                        Free Online <span className="gradient-text">File Conversion Tools</span>
                     </h1>
                     <p className="text-[#9090b0] text-lg max-w-xl mx-auto">
-                        {tools.length} tools across PDF, image, audio, video, and data formats.
+                        Browse {tools.length} free tools to quickly convert and edit PDF, image, audio, video, and data files instantly.
                     </p>
                 </div>
 
