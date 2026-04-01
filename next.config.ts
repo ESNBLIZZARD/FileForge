@@ -18,6 +18,18 @@ const nextConfig: NextConfig = {
         https: false,
         zlib: false,
       };
+      
+      // Specifically handle 'node:' prefixed modules for newer library bundles
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        "node:fs": false,
+        "node:https": false,
+        "node:http": false,
+        "node:path": false,
+        "node:os": false,
+        "node:stream": false,
+        "node:zlib": false,
+      };
     }
     return config;
   },
@@ -38,7 +50,8 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  turbopack: {},
+  // Only add turbopack config if not on Vercel to avoid warnings on Next.js 15
+  ...(!process.env.VERCEL && { turbopack: {} }),
 };
 
 export default nextConfig;
