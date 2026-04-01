@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate"
-  },  
+  },
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
@@ -30,7 +30,7 @@
     "mammoth": "^1.12.0",
     "marked": "^17.0.4",
     "muhammara": "^6.0.4",
-    "next": "15.1.7",
+    "next": "^16.2.2",
     "next-auth": "^4.24.13",
     "pdf-lib": "^1.17.1",
     "pdf-parse": "^2.4.5",
@@ -56,7 +56,7 @@
     "@types/react-dom": "^19",
     "@vitest/ui": "^4.1.0",
     "eslint": "^9",
-    "eslint-config-next": "15.1.7",
+    "eslint-config-next": "^16.2.2",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.0"
