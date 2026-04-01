@@ -35,7 +35,7 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const sessionUser = session?.user as (typeof session.user & SessionUserShape) | undefined;
+    const sessionUser = session?.user as (SessionUserShape & any) | undefined;
     if (status === "unauthenticated") {
       router.push("/login");
       return;
@@ -61,7 +61,7 @@ export default function DashboardPage() {
       }
     };
 
-    const sessionUser = session?.user as (typeof session.user & SessionUserShape) | undefined;
+    const sessionUser = session?.user as (SessionUserShape & any) | undefined;
     if (status === "authenticated" && sessionUser?.role !== "ADMIN") {
       fetchHistory();
     } else if (status !== "loading") {

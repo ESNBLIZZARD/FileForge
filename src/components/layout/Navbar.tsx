@@ -39,7 +39,7 @@ export default function Navbar() {
     const userEmail = session?.user?.email;
     const userName = session?.user?.name || "User";
     const userImage = session?.user?.image;
-    const sessionUser = session?.user as (typeof session.user & SessionUserShape) | undefined;
+    const sessionUser = session?.user as (SessionUserShape & any) | undefined;
     const dashboardHref = sessionUser?.role === "ADMIN" ? "/admin" : "/dashboard";
 
     return (
