@@ -19,12 +19,45 @@ import ToolCard from "@/components/tools/ToolCard";
 import { tools } from "@/lib/tools";
 import { trackConversion } from "@/lib/utils/track";
 import * as pdfjs from "pdfjs-dist";
-import pptxgen from "pptxgenjs";
 
 // Initialize PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 type ConversionState = "idle" | "processing" | "done" | "error";
+type PptxGenInstance = {
+    addSlide: () => {
+        addImage: (options: {
+            data: string;
+            x: number | string;
+            y: number | string;
+            w: number | string;
+            h: number | string;
+        }) => void;
+    };
+    write: (options: { outputType: "blob" }) => Promise<Blob>;
+};
+type PptxGenConstructor = new () => PptxGenInstance;
+
+async function loadPptxGen(): Promise<PptxGenConstructor> {
+    const existing = (window as typeof window & { PptxGenJS?: PptxGenConstructor }).PptxGenJS;
+    if (existing) return existing;
+
+    await new Promise<void>((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = "/vendor/pptxgen.bundle.js";
+        script.async = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error("Failed to load PowerPoint generator."));
+        document.body.appendChild(script);
+    });
+
+    const loaded = (window as typeof window & { PptxGenJS?: PptxGenConstructor }).PptxGenJS;
+    if (!loaded) {
+        throw new Error("PowerPoint generator did not initialize.");
+    }
+
+    return loaded;
+}
 
 export default function PdfToPptPage() {
     const [file, setFile] = useState<File | null>(null);
@@ -61,7 +94,8 @@ export default function PdfToPptPage() {
         try {
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
-            const pres = new pptxgen();
+            const PptxGen = await loadPptxGen();
+            const pres = new PptxGen();
             
             setProgress(15);
 
@@ -228,7 +262,7 @@ export default function PdfToPptPage() {
                                 </div>
                             </div>
                             <div className="text-center">
-                                <p className="text-white font-semibold text-xl">Creating Slides…</p>
+                                <p className="text-white font-semibold text-xl">Creating Slides...</p>
                                 <p className="text-[#9090b0] text-sm mt-1">Rendering high-resolution images for each slide.</p>
                             </div>
                         </div>
@@ -297,3 +331,4 @@ export default function PdfToPptPage() {
         </div>
     );
 }
+

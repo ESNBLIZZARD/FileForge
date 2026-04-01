@@ -3,7 +3,14 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   serverExternalPackages: ["muhammara", "pdf-to-png-converter", "tesseract.js"],
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, webpack }) => {
+    // Strip the 'node:' prefix so Webpack treats it as a normal module, which gets caught by our fallback below.
+    config.plugins.push(
+      new webpack.NormalModuleReplacementPlugin(/^node:/, (resource: any) => {
+        resource.request = resource.request.replace(/^node:/, "");
+      }),
+    );
+
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -17,18 +24,6 @@ const nextConfig: NextConfig = {
         http: false,
         https: false,
         zlib: false,
-      };
-      
-      // Specifically handle 'node:' prefixed modules for newer library bundles
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        "node:fs": false,
-        "node:https": false,
-        "node:http": false,
-        "node:path": false,
-        "node:os": false,
-        "node:stream": false,
-        "node:zlib": false,
       };
     }
     return config;
