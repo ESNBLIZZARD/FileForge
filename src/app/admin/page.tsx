@@ -46,9 +46,6 @@ interface Conversion {
   };
 }
 
-type SessionUserShape = {
-  role?: string;
-};
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
@@ -83,13 +80,13 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    const sessionUser = session?.user as (SessionUserShape & any) | undefined;
+    const sessionUser = session?.user;
     if (status === "unauthenticated" || (sessionUser && sessionUser.role !== "ADMIN")) {
       router.push("/");
     }
   }, [status, session, router]);
   useEffect(() => {
-    const sessionUser = session?.user as (SessionUserShape & any) | undefined;
+    const sessionUser = session?.user;
     if (sessionUser?.role === "ADMIN") {
       fetchAnalytics();
     }

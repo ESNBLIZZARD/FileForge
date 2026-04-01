@@ -5,9 +5,6 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-type SessionUserShape = {
-  role?: string;
-};
 
 type ActivityRecord = {
   createdAt: Date;
@@ -16,7 +13,7 @@ type ActivityRecord = {
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    const sessionUser = session?.user as (SessionUserShape & any) | undefined;
+    const sessionUser = session?.user;
     
     // Strict Admin Check
     if (!session?.user || sessionUser?.role !== "ADMIN") {

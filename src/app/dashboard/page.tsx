@@ -24,9 +24,6 @@ interface Conversion {
   status: string;
 }
 
-type SessionUserShape = {
-  role?: string;
-};
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -35,7 +32,7 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const sessionUser = session?.user as (SessionUserShape & any) | undefined;
+    const sessionUser = session?.user;
     if (status === "unauthenticated") {
       router.push("/login");
       return;
@@ -61,7 +58,7 @@ export default function DashboardPage() {
       }
     };
 
-    const sessionUser = session?.user as (SessionUserShape & any) | undefined;
+    const sessionUser = session?.user;
     if (status === "authenticated" && sessionUser?.role !== "ADMIN") {
       fetchHistory();
     } else if (status !== "loading") {

@@ -5,9 +5,6 @@ import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { Zap, Menu, X, ChevronDown, User, LogOut, Settings, LayoutDashboard } from "lucide-react";
 
-type SessionUserShape = {
-    role?: string;
-};
 
 const navTools = [
     { label: "PDF Tools", href: "/tools?cat=pdf" },
@@ -39,8 +36,7 @@ export default function Navbar() {
     const userEmail = session?.user?.email;
     const userName = session?.user?.name || "User";
     const userImage = session?.user?.image;
-    const sessionUser = session?.user as (SessionUserShape & any) | undefined;
-    const dashboardHref = sessionUser?.role === "ADMIN" ? "/admin" : "/dashboard";
+    const dashboardHref = session?.user?.role === "ADMIN" ? "/admin" : "/dashboard";
 
     return (
         <header
