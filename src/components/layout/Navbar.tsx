@@ -5,6 +5,10 @@ import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { Zap, Menu, X, ChevronDown, User, LogOut, Settings, LayoutDashboard } from "lucide-react";
 
+type SessionUserShape = {
+    role?: string;
+};
+
 const navTools = [
     { label: "PDF Tools", href: "/tools?cat=pdf" },
     { label: "PDF Utilities", href: "/tools?cat=pdf-utilities" },
@@ -35,6 +39,8 @@ export default function Navbar() {
     const userEmail = session?.user?.email;
     const userName = session?.user?.name || "User";
     const userImage = session?.user?.image;
+    const sessionUser = session?.user as (typeof session.user & SessionUserShape) | undefined;
+    const dashboardHref = sessionUser?.role === "ADMIN" ? "/admin" : "/dashboard";
 
     return (
         <header
@@ -100,7 +106,7 @@ export default function Navbar() {
                         </Link>
                         {status === "authenticated" && (
                             <Link
-                                href="/dashboard"
+                                href={dashboardHref}
                                 className="px-4 py-2 rounded-lg text-[#9090b0] hover:text-white hover:bg-white/[0.06] transition-all text-sm font-medium"
                             >
                                 Dashboard
@@ -137,7 +143,7 @@ export default function Navbar() {
                                             <p className="text-white text-xs font-bold truncate">{userName}</p>
                                             <p className="text-[#606080] text-[10px] truncate">{userEmail}</p>
                                         </div>
-                                        <Link href="/dashboard" className="flex items-center gap-3 px-4 py-2 text-sm text-[#9090b0] hover:text-white hover:bg-white/5 transition-colors">
+                                        <Link href={dashboardHref} className="flex items-center gap-3 px-4 py-2 text-sm text-[#9090b0] hover:text-white hover:bg-white/5 transition-colors">
                                             <LayoutDashboard className="w-4 h-4" /> Dashboard
                                         </Link>
                                         <Link href="/settings" className="flex items-center gap-3 px-4 py-2 text-sm text-[#9090b0] hover:text-white hover:bg-white/5 transition-colors">
@@ -226,7 +232,7 @@ export default function Navbar() {
                         {status === "authenticated" ? (
                             <>
                                 <Link
-                                    href="/dashboard"
+                                    href={dashboardHref}
                                     onClick={() => setMenuOpen(false)}
                                     className="block px-4 py-2.5 rounded-lg text-[#9090b0] hover:text-white hover:bg-white/[0.06] transition-all text-sm font-bold uppercase tracking-widest"
                                 >

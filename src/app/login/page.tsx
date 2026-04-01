@@ -7,6 +7,12 @@ import { signIn } from "next-auth/react";
 import { Zap, Eye, EyeOff, Github, Loader2 } from "lucide-react";
 import { signupSchema, loginSchema } from "@/lib/validations/auth";
 
+type SessionUserResponse = {
+    user?: {
+        role?: string;
+    };
+};
+
 export default function LoginPage() {
     const router = useRouter();     
     const [isLogin, setIsLogin] = useState(true);
@@ -23,6 +29,26 @@ export default function LoginPage() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
         setError(null);
+    };
+
+    const redirectToHome = async () => {
+        try {
+            const response = await fetch("/api/auth/session", {
+                credentials: "include",
+                cache: "no-store",
+            });
+
+            if (response.ok) {
+                const session = (await response.json()) as SessionUserResponse;
+                const destination = session.user?.role === "ADMIN" ? "/admin" : "/dashboard";
+                window.location.href = destination;
+                return;
+            }
+        } catch (error) {
+            console.error("Failed to resolve post-login redirect:", error);
+        }
+
+        window.location.href = "/dashboard";
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -49,7 +75,7 @@ export default function LoginPage() {
                 if (result?.error) {
                     setError("Invalid email or password");
                 } else {
-                    window.location.href = "/dashboard";
+                    await redirectToHome();
                 }
             } else {
                 // Signup Flow
@@ -82,7 +108,7 @@ export default function LoginPage() {
                         setError("Account created, but login failed. Please sign in manually.");
                         setIsLogin(true);
                     } else {
-                        window.location.href = "/dashboard";
+                        await redirectToHome();
                     }
                 }
             }
@@ -94,7 +120,7 @@ export default function LoginPage() {
     };
 
     const handleSocialLogin = (provider: string) => {
-        signIn(provider, { callbackUrl: "/dashboard" });
+        signIn(provider, { callbackUrl: "/admin" });
     };
 
     return (

@@ -24,6 +24,10 @@ interface Conversion {
   status: string;
 }
 
+type SessionUserShape = {
+  role?: string;
+};
+
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -31,10 +35,16 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const sessionUser = session?.user as (typeof session.user & SessionUserShape) | undefined;
     if (status === "unauthenticated") {
       router.push("/login");
+      return;
     }
-  }, [status, router]);
+
+    if (sessionUser?.role === "ADMIN") {
+      router.push("/admin");
+    }
+  }, [status, session, router]);
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -51,10 +61,13 @@ export default function DashboardPage() {
       }
     };
 
-    if (status === "authenticated") {
+    const sessionUser = session?.user as (typeof session.user & SessionUserShape) | undefined;
+    if (status === "authenticated" && sessionUser?.role !== "ADMIN") {
       fetchHistory();
+    } else if (status !== "loading") {
+      setIsLoading(false);
     }
-  }, [status]);
+  }, [status, session]);
 
   if (status === "loading" || isLoading) {
     return (

@@ -5,12 +5,14 @@ export async function trackConversion(fileName: string, fileType: string, toolUs
   try {
     const res = await fetch("/api/conversions", {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fileName, fileType, toolUsed }),
     });
 
     if (!res.ok) {
-      console.warn("Failed to log conversion history:", res.statusText);
+      const message = await res.text();
+      console.warn("Failed to log conversion history:", res.status, message || res.statusText);
     }
   } catch (error) {
     console.error("Error in trackConversion:", error);

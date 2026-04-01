@@ -5,11 +5,44 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
+type AuthenticatedSessionUser = {
+  id?: string;
+  email?: string | null;
+};
+
+async function resolveCurrentUserId() {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user) {
+    return { session: null, userId: null };
+  }
+
+  const sessionUser = session.user as typeof session.user & AuthenticatedSessionUser;
+  if (sessionUser.id) {
+    return { session, userId: sessionUser.id as string };
+  }
+
+  if (!sessionUser.email) {
+    return { session, userId: null };
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: sessionUser.email,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return { session, userId: user?.id ?? null };
+}
+
 // POST /api/conversions - Log a new conversion
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { session, userId } = await resolveCurrentUserId();
+    if (!session?.user || !userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -21,7 +54,7 @@ export async function POST(req: Request) {
 
     const conversion = await prisma.conversion.create({
       data: {
-        userId: (session.user as any).id,
+        userId,
         fileName,
         fileType,
         toolUsed,
@@ -38,14 +71,14 @@ export async function POST(req: Request) {
 // GET /api/conversions - Fetch history for the current user
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const { session, userId } = await resolveCurrentUserId();
+    if (!session?.user || !userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const conversions = await prisma.conversion.findMany({
       where: {
-        userId: (session.user as any).id,
+        userId,
       },
       orderBy: {
         createdAt: "desc",

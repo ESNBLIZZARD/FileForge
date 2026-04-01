@@ -5,12 +5,21 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
+type SessionUserShape = {
+  role?: string;
+};
+
+type ActivityRecord = {
+  createdAt: Date;
+};
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
+    const sessionUser = session?.user as (SessionUserShape & any) | undefined;
     
     // Strict Admin Check
-    if (!session?.user || (session.user as any).role !== "ADMIN") {
+    if (!session?.user || sessionUser?.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -18,19 +27,31 @@ export async function GET() {
     const totalUsers = await prisma.user.count();
     const totalConversions = await prisma.conversion.count();
 
-    // 2. Top Tools
-    const topTools = await prisma.conversion.groupBy({
+    // 2. Tool Analytics
+    const toolAnalyticsRaw = await prisma.conversion.groupBy({
       by: ["toolUsed"],
       _count: {
         id: true,
+      },
+      _max: {
+        createdAt: true,
       },
       orderBy: {
         _count: {
           id: "desc",
         },
       },
-      take: 5,
     });
+
+    const toolAnalytics = toolAnalyticsRaw.map((tool, index) => ({
+      rank: index + 1,
+      name: tool.toolUsed,
+      count: tool._count.id,
+      share: totalConversions > 0 ? Number(((tool._count.id / totalConversions) * 100).toFixed(1)) : 0,
+      lastUsedAt: tool._max.createdAt,
+    }));
+
+    const topTools = toolAnalytics.slice(0, 5);
 
     // 3. Last 7 Days Activity
     const sevenDaysAgo = new Date();
@@ -58,7 +79,7 @@ export async function GET() {
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split("T")[0];
       
-      const count = recentActivity.filter((act: any) => 
+      const count = recentActivity.filter((act: ActivityRecord) => 
         act.createdAt.toISOString().split("T")[0] === dateStr
       ).length;
 
@@ -73,7 +94,6 @@ export async function GET() {
       orderBy: {
         createdAt: "desc",
       },
-      take: 50,
       include: {
         user: {
           select: {
@@ -89,10 +109,8 @@ export async function GET() {
         totalUsers,
         totalConversions,
       },
-      topTools: topTools.map((t: any) => ({
-        name: t.toolUsed,
-        count: t._count.id,
-      })),
+      topTools,
+      toolAnalytics,
       activityTrend,
       recentConversions,
     });
